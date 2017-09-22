@@ -26,6 +26,17 @@ and did a git add and git commit to push the changes to my repository
 
 ## Analyzing the Data 
 
+### File
+I used the `file` command to look at both `fang_et_al_genotypes.txt` and `snp_position.txt`
+```
+$ file fang_et_al_genotypes.txt 
+fang_et_al_genotypes.txt: ASCII text, with very long lines
+```
+```
+$ file snp_position.txt 
+snp_position.txt: ASCII text
+```
+
 ### Head
 I used the `head` command to inspect the data sets `fang_et_al_genotypes.txt` and `snp_position.txt` 
 `fang_et_al_genotypes.txt` showed a large wall of text even though it was just a head command showing the first 10 lines
@@ -50,8 +61,8 @@ Not much information gained.
 Since the files were so large I inspected them using the `less` command and navigated using `space bar, b, j, k, g, and q keys`
 
 ### WC
-I used the `wc` command and found the number, words, and bytes for each file.  
-`fang_et_al_genotypes.txt` had 2,783 lines, 274,4028 words, and 11,051,939 characters
+I used the `wc` command and found the number of lines, words, and bytes for each file.  
+`fang_et_al_genotypes.txt` had 2,783 lines, 2,744,028 words, and 11,051,939 characters
 `snp_position.txt` had 984 lines, 13,198 words, and 82,763 characters
 
 ### File Size
@@ -66,4 +77,6 @@ I used my laptop to count the columns using the `awk` one liner we learned in cl
 `fang_et_al_genotypes` had 986 columns
 `snp_position.txt` had 15 columns
 To make sure that none of the columns didn't have a header I also employed the `grep -v "^#" <FILE NAME> | awk -F "\t" '{print NF; exit}'` from class on both files and received the same results
+
+
 
