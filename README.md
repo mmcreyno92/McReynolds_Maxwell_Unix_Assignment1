@@ -46,3 +46,24 @@ Used both commands simultaneosly to check the head and tail of the data sets usi
 ```
 Not much information gained.
 
+### Less
+Since the files were so large I inspected them using the `less` command and navigated using `space bar, b, j, k, g, and q keys`
+
+### WC
+I used the `wc` command and found the number, words, and bytes for each file.  
+`fang_et_al_genotypes.txt` had 2,783 lines, 274,4028 words, and 11,051,939 characters
+`snp_position.txt` had 984 lines, 13,198 words, and 82,763 characters
+
+### File Size
+Inspecting the file size of a file is crucial before downloading or analyzing anything
+I used the `ls -lh` and `du -h` (human readable) commands to get the file sizes
+`fang_et_al_genotypes.txt` had a file size of 11M
+`snp_positions.txt` had a file size of 84K
+I agree with these sizes after using the `less` command to inspect the sizes of them earlier
+
+### `Awk` for Column Number
+I used my laptop to count the columns using the `awk` one liner we learned in class `awk -F "\t" '{print NF; exit}'`
+`fang_et_al_genotypes` had 986 columns
+`snp_position.txt` had 15 columns
+To make sure that none of the columns didn't have a header I also employed the `grep -v "^#" <FILE NAME> | awk -F "\t" '{print NF; exit}'` from class on both files and received the same results
+
