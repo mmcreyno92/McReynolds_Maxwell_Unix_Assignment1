@@ -79,4 +79,5 @@ I used my laptop to count the columns using the `awk` one liner we learned in cl
 To make sure that none of the columns didn't have a header I also employed the `grep -v "^#" <FILE NAME> | awk -F "\t" '{print NF; exit}'` from class on both files and received the same results
 
 
-
+## Data Manipulation
+The goal of this project is to create files for maize and teosinte genotyping by combining the `fang_et_al_genotypes.txt` file and the `snp_positions.txt` file and outputting new files for each chromosome (1-10) by increasing or decreasing SNP position values.  Any missing information should include either a `?` or `-` as determined by the assignment details.  Also a file with all SNPs with unknown positions in the genome as well as a file with SNPs with multiple positions in the genome should be created.  This will total to approximately 44 files.
