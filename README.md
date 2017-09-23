@@ -81,3 +81,42 @@ To make sure that none of the columns didn't have a header I also employed the `
 
 ## Data Manipulation
 The goal of this project is to create files for maize and teosinte genotyping by combining the `fang_et_al_genotypes.txt` file and the `snp_positions.txt` file and outputting new files for each chromosome (1-10) by increasing or decreasing SNP position values.  Any missing information should include either a `?` or `-` as determined by the assignment details.  Also a file with all SNPs with unknown positions in the genome as well as a file with SNPs with multiple positions in the genome should be created.  This will total to approximately 44 files.
+
+### Transpose Data
+First I transposed the genotype data so the columns became rows.  I used the code provided in the assignment to do this:
+```
+awk -f transpose.awk fang_et_al_genotypes.txt > transposed_genotypes.txt
+```
+
+### Extracting Maize and Teosinte Data
+Next I extracted the data for maize and teosinte from the `fang_et_al_genotypes.txt` file as well as the headers so I knew which column contained which data using an extended grep command as shown below
+```
+grep -E "(ZMPBA|ZMPIL|ZMPJA)" fang_et_al_genotypes.txt > teosinte_genotypes.txt
+```
+This created files with the extracted data
+
+### Transposing the Maize and Teosinte Data
+The data extracted for maize and teosinte also needed transposed much like the `fang_et_al_genotypes.txt` file so I followed the command listed in the assignment tips section
+```
+awk -f transpose.awk teosinte_genotypes.txt > transposed_teosinte_genotypes.txt
+```
+I can now match the data from these files with the `snp_positions.txt` file
+
+### Removing Headers from Maize, Teosinte, and SNP Positions Files
+In order to sort the data I removed the headers from the above-mentioned files.  With headers present it wouldn't allow me to later join the data sets together
+```
+tail -n +4 transposed_maize_genotypes.txt > headerless_transposed_maize_genotypes.txt
+```
+
+### Sorting and Joining Files
+With the headerless files now created I sorted them on column one for each of the data sets.  This was needed to join the files which shared data in column one.  I performed the following codes:
+```
+sort -k1,1 headerless_transposed_teosinte_genotypes.txt > sorted_headerless_transposed_teosinte_genotypes.txt
+```
+for maize, teosinte, and the snp_position files and then joined the maize file with the snp file and the teosinte file with the snp file using the sorted column 1
+```
+join -1 1 -2 1 sorted_headerless_snp_position.txt sorted_headerless_transposed_maize_genotypes.txt > joined_maize.txt
+```
+This created two joined files with teosinte and snp_position being one and maize and snp_position being the other
+
+
