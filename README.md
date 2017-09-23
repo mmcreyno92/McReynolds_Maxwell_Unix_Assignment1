@@ -92,6 +92,7 @@ awk -f transpose.awk fang_et_al_genotypes.txt > transposed_genotypes.txt
 Next I extracted the data for maize and teosinte from the `fang_et_al_genotypes.txt` file as well as the headers so I knew which column contained which data using an extended grep command as shown below
 ```
 grep -E "(ZMPBA|ZMPIL|ZMPJA)" fang_et_al_genotypes.txt > teosinte_genotypes.txt
+grep -E "(ZMMIL|ZMMLR|ZMMMR)" fang_et_al_genotypes.txt > maize_genotypes.txt
 ```
 This created files with the extracted data
 
@@ -99,6 +100,8 @@ This created files with the extracted data
 The data extracted for maize and teosinte also needed transposed much like the `fang_et_al_genotypes.txt` file so I followed the command listed in the assignment tips section
 ```
 awk -f transpose.awk teosinte_genotypes.txt > transposed_teosinte_genotypes.txt
+
+awk -f transpose.awk maize_genotypes.txt > transposed_maize_genotypes.txt
 ```
 I can now match the data from these files with the `snp_positions.txt` file
 
@@ -106,17 +109,99 @@ I can now match the data from these files with the `snp_positions.txt` file
 In order to sort the data I removed the headers from the above-mentioned files.  With headers present it wouldn't allow me to later join the data sets together
 ```
 tail -n +4 transposed_maize_genotypes.txt > headerless_transposed_maize_genotypes.txt
+tail -n +4 transposed_teosinte_genotypes.txt > headerless_transposed_teosinte_genotypes.txt
 ```
 
 ### Sorting and Joining Files
 With the headerless files now created I sorted them on column one for each of the data sets.  This was needed to join the files which shared data in column one.  I performed the following codes:
 ```
 sort -k1,1 headerless_transposed_teosinte_genotypes.txt > sorted_headerless_transposed_teosinte_genotypes.txt
+sort -k1,1 headerless_transposed_maize_genotypes.txt > sorted_headerless_transposed_maize_genotypes.txt
 ```
 for maize, teosinte, and the snp_position files and then joined the maize file with the snp file and the teosinte file with the snp file using the sorted column 1
 ```
 join -1 1 -2 1 sorted_headerless_snp_position.txt sorted_headerless_transposed_maize_genotypes.txt > joined_maize.txt
+join -1 1 -2 1 sorted_headerless_snp_position.txt sorted_headerless_transposed_teosinte_genotypes.txt > joined_teosinte.txt
 ```
 This created two joined files with teosinte and snp_position being one and maize and snp_position being the other
 
+### Cutting Excess Columns
+For each of the maize and teosinte joined files I wanted to remove all of the other unecessary columns just to leave the SNP id, chromosome number, snp position and the genotyping information.  To do this I did a `head` command to see the column titles so I knew which columns I wanted to keep and which to get rid of for my joined maize and teosinte files.  I then used
+```
+$ cut -d" " -f1,3,4,14-1586 joined_maize.txt > subset_cut_joined_maize.txt
+$ cut -d" " -f1,3,4,14-988 joined_teosinte.txt > subset_cut_joined_teosinte.txt
+``` 
+to remove those uneccessary columns but keep the SNP ID, Chromosome number, and SNP position columns as well as the remaining genotype information.  
 
+### Sorting, Removal of Unknown/Multiple, and Exporting Chromosome Specific Files
+With the files now having the correct columns with all the chromosomes present I wanted to sort and create files for the individual chromosomes.  At the same time I wished to remove any of the unknown and multiple data for each file. To do this I used a for loop as shown below and paired each with a specific sorting method to sort the SNP position either increasing or decreasing and switched out the ? for a - symbol
+```
+$ for Chrom in {1..10}; do awk -v i=$Chrom '$2=i' subset_cut_joined_maize.txt | awk '($3 !~ /[{a-z]/)' | sort -k3,3 -r | sed 's/?/-/g' > decreasing_maize_Chrom$Chrom.txt; done
+$ for Chrom in {1..10}; do awk -v i=$Chrom '$2=i' subset_cut_joined_teosinte.txt | awk '($3 !~ /[{a-z]/)' | sort -k3,3 -r | sed 's/?/-/g' > decreasing_teosinte_Chrom$Chrom.txt; done
+$ for Chrom in {1..10}; do awk -v i=$Chrom '$2=i' subset_cut_joined_maize.txt | awk '($3 !~ /[{a-z]/)' | sort -k3,3  > increasing_maize_Chrom$Chrom.txt; done
+$ for Chrom in {1..10}; do awk -v i=$Chrom '$2=i' subset_cut_joined_teosinte.txt | awk '($3 !~ /[{a-z]/)' | sort -k3,3  > increasing_teosinte_Chrom$Chrom.txt; done
+```
+The difference between the commands is the first two sort by decreasing (with - for missing genotype information) for maize and teosinte, respectively... While the last two sort by increasing (with ? for missing genotype information) for maize and teosinte, respectively. 
+
+### Creation of Teosinte and Maize Unknown/Multiple Position Files
+Having completed the first 40 files for maize and teosinte known/single positions I then created 4 more files for maize and teosinte having unknown and multiple positions in the genome.  To create these I used the awk command to look for the words unknown and multiple in column 3 within my pre-"separated by chromosome" files and move them to the newly specified files listed in the code
+```
+$ awk '$3 ~ /unknown/' subset_cut_joined_maize.txt > unknown_maize_genotypes.txt
+$ awk '$3 ~ /unknown/' subset_cut_joined_teosinte.txt > unknown_teosinte_genotypes.txt
+$ awk '$3 ~ /multiple/' subset_cut_joined_teosinte.txt > multiple_teosinte_genotypes.txt
+$ awk '$3 ~ /multiple/' subset_cut_joined_maize.txt > multiple_maize_genotypes.txt
+```
+
+#Final Remarks 
+This assignment was very beneficial to me to heighten my critical thinking skills when it comes to data inspection and manipulation. 
+The finished files are as follows:
+```
+maize:
+increasing_maize_Chrom1.txt  
+increasing_maize_Chrom2.txt   
+increasing_maize_Chrom3.txt   
+increasing_maize_Chrom4.txt   
+increasing_maize_Chrom5.txt   
+increasing_maize_Chrom6.txt   
+increasing_maize_Chrom7.txt   
+increasing_maize_Chrom8.txt   
+increasing_maize_Chrom9.txt   
+increasing_maize_Chrom10.txt   
+decreasing_maize_Chrom1.txt 
+decreasing_maize_Chrom2.txt 
+decreasing_maize_Chrom3.txt 
+decreasing_maize_Chrom4.txt 
+decreasing_maize_Chrom5.txt 
+decreasing_maize_Chrom6.txt 
+decreasing_maize_Chrom7.txt 
+decreasing_maize_Chrom8.txt 
+decreasing_maize_Chrom9.txt 
+decreasing_maize_Chrom10.txt 
+unknown_maize_genotypes.txt
+multiple_maize_genotypes.txt 
+```
+```
+teosinte
+increasing_teosinte_Chrom1.txt
+increasing_teosinte_Chrom2.txt
+increasing_teosinte_Chrom3.txt
+increasing_teosinte_Chrom4.txt
+increasing_teosinte_Chrom5.txt
+increasing_teosinte_Chrom6.txt
+increasing_teosinte_Chrom7.txt
+increasing_teosinte_Chrom8.txt
+increasing_teosinte_Chrom9.txt
+increasing_teosinte_Chrom10.txt
+decreasing_teosinte_Chrom1.txt
+decreasing_teosinte_Chrom2.txt
+decreasing_teosinte_Chrom3.txt
+decreasing_teosinte_Chrom4.txt
+decreasing_teosinte_Chrom5.txt
+decreasing_teosinte_Chrom6.txt
+decreasing_teosinte_Chrom7.txt
+decreasing_teosinte_Chrom8.txt
+decreasing_teosinte_Chrom9.txt
+decreasing_teosinte_Chrom10.txt
+unknown_teosinte_genotypes.txt
+multiple_teosinte_genotypes.txt 
+```
